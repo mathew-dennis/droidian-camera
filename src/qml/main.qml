@@ -438,224 +438,225 @@ ApplicationWindow {
         }
     }
 
-    Drawer {
-        id: drawer
-        width: 100
-        height: parent.height
-        dim: false
-        background: Rectangle {
-            id: background
-            anchors.fill: parent
-            color: "transparent"
-        }
+ Drawer {
+    id: drawer
+    width: parent.width
+    height: 100
+    dim: false
+    position: Qt.TopEdge
+    background: Rectangle {
+        id: background
+        anchors.fill: parent
+        color: "transparent"
+    }
 
-        ColumnLayout {
-            id: btnContainer
-            spacing: 25
-            anchors.centerIn: parent
+    ColumnLayout {
+        id: btnContainer
+        spacing: 25
+        anchors.centerIn: parent
 
-            Button {
-                id: camSwitchBtn
+        Button {
+            id: camSwitchBtn
 
-                height: width
-                Layout.alignment: Qt.AlignHCenter
-                icon.name: "camera-switch-symbolic"
-                icon.height: 40
-                icon.width: 40
-                icon.color: "white"
-                visible: camera.position !== Camera.UnspecifiedPosition && !window.videoCaptured
+            height: width
+            Layout.alignment: Qt.AlignHCenter
+            icon.name: "camera-switch-symbolic"
+            icon.height: 40
+            icon.width: 40
+            icon.color: "white"
+            visible: camera.position !== Camera.UnspecifiedPosition && !window.videoCaptured
 
-                background: Rectangle {
-                    anchors.fill: parent
-                    color: "transparent"
-                }
-
-                onClicked: {
-                    if (camera.position === Camera.BackFace) {
-                        drawer.close()
-                        camera.position = Camera.FrontFace;
-                    } else if (camera.position === Camera.FrontFace) {
-                        drawer.close()
-                        camera.position = Camera.BackFace;
-                    }
-                }
+            background: Rectangle {
+                anchors.fill: parent
+                color: "transparent"
             }
 
-            Button {
-                id: cameraSelectButton
-                Layout.topMargin: -35
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-                icon.name: "view-more-horizontal-symbolic"
-                icon.height: 40
-                icon.width: 40
-                icon.color: "white"
-
-                background: Rectangle {
-                    anchors.fill: parent
-                    color: "transparent"
-                }
-
-                visible: window.backCameras > 1 && window.videoCaptured == false
-
-                onClicked: {
-                    delayTime.visible = false
-                    backCamSelect.visible = true
-                    optionContainer.state = "opened"
+            onClicked: {
+                if (camera.position === Camera.BackFace) {
                     drawer.close()
-                    window.blurView = 1
-                }
-            }
-
-            Button {
-                id: flashButton
-
-                height: width
-                Layout.alignment: Qt.AlignHCenter
-                icon.name: "thunderbolt-symbolic"
-                icon.height: 40
-                icon.width: 40
-                icon.color: "white"
-                state: settings.flash
-
-                visible: !window.videoCaptured
-
-                states: [
-                    State {
-                        name: "flashOff"
-                        PropertyChanges {
-                            target: camera
-                            flash.mode: Camera.FlashOff
-                        }
-
-                        PropertyChanges {
-                            target: settings
-                            flash: "flashOff"
-                        }
-                    },
-
-                    State {
-                        name: "flashOn"
-                        PropertyChanges {
-                            target: camera
-                            flash.mode: Camera.FlashOn
-                        }
-
-                        PropertyChanges {
-                            target: settings
-                            flash: "flashOn"
-                        }
-                    },
-
-                    State {
-                        name: "flashAuto"
-                            PropertyChanges {
-                            target: camera
-                            flash.mode: Camera.FlashAuto
-                        }
-
-                        PropertyChanges {
-                            target: settings
-                            flash: "flashAuto"
-                        }
-                    }
-                ]
-
-                background: Rectangle {
-                    anchors.fill: parent
-                    color: "transparent"
-                }
-
-                onClicked: {
-                    if (camera.position !== Camera.FrontFace) {
-                        if (flashButton.state == "flashOff") {
-                            flashButton.state = "flashOn"
-                        } else if (flashButton.state == "flashOn") {
-                            flashButton.state = "flashAuto"
-                        } else if (flashButton.state == "flashAuto") {
-                            flashButton.state = "flashOff"
-                        }
-                    }
-                }
-
-                Text {
-                    anchors.fill: parent
-                    text: flashButton.state == "flashOn" ? "\u2714" :
-                            flashButton.state == "flashOff" ? "\u2718" : "A"
-                    color: "white"
-                    z: parent.z + 1
-                    font.pixelSize: 32
-                    font.bold: true
-                    style: Text.Outline;
-                    styleColor: "black"
-                    bottomPadding: 10
-                }
-            }
-
-            Button {
-                id: aspectRatioButton
-                Layout.preferredWidth: 60
-                Layout.preferredHeight: 40
-                Layout.alignment: Qt.AlignHCenter
-                palette.buttonText: "white"
-
-                font.pixelSize: 14
-                font.bold: true
-                text: camera.aspWide ? "16:9" : "4:3"
-
-                visible: !window.videoCaptured
-
-                background: Rectangle {
-                    anchors.fill: parent
-                    color: "transparent"
-                    border.width: 2
-                    border.color: "white"
-                    radius: 8
-                }
-
-                onClicked: {
-                    if (!camera.aspWide) {
-                        drawer.close()
-                        camera.aspWide = 1;
-                        camera.imageCapture.resolution = camera.firstSixteenNineResolution
-                    } else {
-                        drawer.close()
-                        camera.aspWide = 0;
-                        camera.imageCapture.resolution = camera.firstFourThreeResolution
-                    }
-                }
-            }
-
-            Button {
-                id: soundButton
-                property var soundOn: settings.soundOn
-
-                height: width
-                Layout.alignment: Qt.AlignHCenter
-                icon.name: soundButton.soundOn == 1 ? "audio-volume-high-symbolic" : "audio-volume-muted-symbolic"
-                icon.height: 40
-                icon.width: 40
-                icon.color: "white"
-
-                background: Rectangle {
-                    anchors.fill: parent
-                    color: "transparent"
-                }
-
-                onClicked: {
-                    if (soundButton.soundOn == 1) {
-                        soundButton.soundOn = 0
-                        settings.setValue("soundOn", 0)
-                    } else {
-                        soundButton.soundOn = 1
-                        settings.setValue("soundOn", 1)
-                    }
+                    camera.position = Camera.FrontFace;
+                } else if (camera.position === Camera.FrontFace) {
+                    drawer.close()
+                    camera.position = Camera.BackFace;
                 }
             }
         }
-        onClosed: {
-            window.blurView = optionContainer.state == "opened" ? 1 : 0
+
+        Button {
+            id: cameraSelectButton
+            Layout.topMargin: -35
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+            icon.name: "view-more-horizontal-symbolic"
+            icon.height: 40
+            icon.width: 40
+            icon.color: "white"
+
+            background: Rectangle {
+                anchors.fill: parent
+                color: "transparent"
+            }
+
+            visible: window.backCameras > 1 && window.videoCaptured == false
+
+            onClicked: {
+                delayTime.visible = false
+                backCamSelect.visible = true
+                optionContainer.state = "opened"
+                drawer.close()
+                window.blurView = 1
+            }
+        }
+
+        Button {
+            id: flashButton
+
+            height: width
+            Layout.alignment: Qt.AlignHCenter
+            icon.name: "thunderbolt-symbolic"
+            icon.height: 40
+            icon.width: 40
+            icon.color: "white"
+            state: settings.flash
+
+            visible: !window.videoCaptured
+
+            states: [
+                State {
+                    name: "flashOff"
+                    PropertyChanges {
+                        target: camera
+                        flash.mode: Camera.FlashOff
+                    }
+
+                    PropertyChanges {
+                        target: settings
+                        flash: "flashOff"
+                    }
+                },
+
+                State {
+                    name: "flashOn"
+                    PropertyChanges {
+                        target: camera
+                        flash.mode: Camera.FlashOn
+                    }
+
+                    PropertyChanges {
+                        target: settings
+                        flash: "flashOn"
+                    }
+                },
+
+                State {
+                    name: "flashAuto"
+                    PropertyChanges {
+                        target: camera
+                        flash.mode: Camera.FlashAuto
+                    }
+
+                    PropertyChanges {
+                        target: settings
+                        flash: "flashAuto"
+                    }
+                }
+            ]
+
+            background: Rectangle {
+                anchors.fill: parent
+                color: "transparent"
+            }
+
+            onClicked: {
+                if (camera.position !== Camera.FrontFace) {
+                    if (flashButton.state == "flashOff") {
+                        flashButton.state = "flashOn"
+                    } else if (flashButton.state == "flashOn") {
+                        flashButton.state = "flashAuto"
+                    } else if (flashButton.state == "flashAuto") {
+                        flashButton.state = "flashOff"
+                    }
+                }
+            }
+
+            Text {
+                anchors.fill: parent
+                text: flashButton.state == "flashOn" ? "\u2714" :
+                        flashButton.state == "flashOff" ? "\u2718" : "A"
+                color: "white"
+                z: parent.z + 1
+                font.pixelSize: 32
+                font.bold: true
+                style: Text.Outline;
+                styleColor: "black"
+                bottomPadding: 10
+            }
+        }
+
+        Button {
+            id: aspectRatioButton
+            Layout.preferredWidth: 60
+            Layout.preferredHeight: 40
+            Layout.alignment: Qt.AlignHCenter
+            palette.buttonText: "white"
+
+            font.pixelSize: 14
+            font.bold: true
+            text: camera.aspWide ? "16:9" : "4:3"
+
+            visible: !window.videoCaptured
+
+            background: Rectangle {
+                anchors.fill: parent
+                color: "transparent"
+                border.width: 2
+                border.color: "white"
+                radius: 8
+            }
+
+            onClicked: {
+                if (!camera.aspWide) {
+                    drawer.close()
+                    camera.aspWide = 1;
+                    camera.imageCapture.resolution = camera.firstSixteenNineResolution
+                } else {
+                    drawer.close()
+                    camera.aspWide = 0;
+                    camera.imageCapture.resolution = camera.firstFourThreeResolution
+                }
+            }
+        }
+
+        Button {
+            id: soundButton
+            property var soundOn: settings.soundOn
+
+            height: width
+            Layout.alignment: Qt.AlignHCenter
+            icon.name: soundButton.soundOn == 1 ? "audio-volume-high-symbolic" : "audio-volume-muted-symbolic"
+            icon.height: 40
+            icon.width: 40
+            icon.color: "white"
+
+            background: Rectangle {
+                anchors.fill: parent
+                color: "transparent"
+            }
+
+            onClicked: {
+                if (soundButton.soundOn == 1) {
+                    soundButton.soundOn = 0
+                    settings.setValue("soundOn", 0)
+                } else {
+                    soundButton.soundOn = 1
+                    settings.setValue("soundOn", 1)
+                }
+            }
         }
     }
+    onClosed: {
+        window.blurView = optionContainer.state == "opened" ? 1 : 0
+    }
+}
 
     Rectangle {
         id: optionContainer
